@@ -4,7 +4,7 @@
 #### 1: Deploy via Azure ARM Template
 1.  Deploy the template.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FForceNow%2FO365LogsToSentinel%2Fmaster%2Fazuredeploy.json%3Ftoken%3DAQGIBJXVLTSXSKL5QL37X3K7A7UYO" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FForceNow%2FO365LogsToSentinel%2Fmaster%2Fazuredeploy.json%3Ftoken%3DAQGIBJQY64DSNN5IK4JSOUC7BAECY" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
