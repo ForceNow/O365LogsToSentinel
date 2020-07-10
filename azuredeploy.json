@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "FunctionName": {
-            "defaultValue": "O365Data",
+            "defaultValue": "O365DataConnector",
             "type": "String"
         },
         "clientID": {
@@ -245,7 +245,7 @@
                         "workspaceID": "[parameters('workspaceID')]",
                         "workspaceKey": "[concat('@Microsoft.KeyVault(SecretUri=https://', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('FunctionName'), 'workspaceKey')).SecretUriWithVersion, ')')]",
                         "WEBSITE_RUN_FROM_PACKAGE": "https://github.com/Azure/Azure-Sentinel/blob/master/DataConnectors/O365%20Data/O365APItoAS-Template.zip?raw=true",
-                        "customLogName": "O365"
+                        "customLogName": "O365Logs"
                     }
                 }
             ]

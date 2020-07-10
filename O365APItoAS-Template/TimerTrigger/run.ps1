@@ -161,6 +161,7 @@ function Get-AuthToken{
 }
 
 function Get-O365Data{
+    Write-Host "Starting point pulling data from O365 Management APIs"
     [cmdletbinding()]
     Param(
         [Parameter(Mandatory = $true, Position = 0)]
@@ -177,6 +178,7 @@ function Get-O365Data{
     #Loop for each content Type like Audit.General
     foreach($contentType in $contentTypes){
         $listAvailableContentUri = "https://manage.office.com/api/v1.0/$tenantGUID/activity/feed/subscriptions/content?contentType=$contentType&PublisherIdentifier=$env:publisher&startTime=$startTime&endTime=$endTime"
+        Write-Host "Content data pulled fro O365: $listAvailableContentUri"
         do {
             #List Available Content
             $contentResult = Invoke-RestMethod -Method GET -Headers $headerParams -Uri $listAvailableContentUri
@@ -185,6 +187,7 @@ function Get-O365Data{
             foreach($obj in $contentResult){
                 #Retrieve Content
                 $data = Invoke-RestMethod -Method GET -Headers $headerParams -Uri ($obj.contentUri)
+                Write-Host "Data Logs pulled for O365: $data"
                 $data.Count
                 #Loop through each Record in the Content
                 foreach($event in $data){
@@ -241,6 +244,7 @@ if((Get-AzStorageContainer -Context $Context).Name -contains "lastlog"){
     $Blob = Get-AzStorageBlob -Context $Context -Container (Get-AzStorageContainer -Name "lastlog" -Context $Context).Name -Blob "lastlog.log"
     $lastlogTime = $blob.ICloudBlob.DownloadText()
     $startTime = $lastlogTime | Get-Date -Format yyyy-MM-ddThh:mm:ss
+	Write-Host "Data logs from $startTime"
     $endTime | Out-File "$env:TEMP\lastlog.log"
     Set-AzStorageBlobContent -file "$env:TEMP\lastlog.log" -Container (Get-AzStorageContainer -Name "lastlog" -Context $Context).Name -Context $Context -Force
 }
@@ -249,7 +253,8 @@ else {
     $azStorageContainer = New-AzStorageContainer -Name "lastlog" -Context $Context
     $endTime | Out-File "$env:TEMP\lastlog.log"
     Set-AzStorageBlobContent -file "$env:TEMP\lastlog.log" -Container $azStorageContainer.name -Context $Context -Force
-    $startTime = $currentUTCtime.AddSeconds(-300) | Get-Date -Format yyyy-MM-ddThh:mm:ss
+    $startTime = $currentUTCtime.AddSeconds(-86400) | Get-Date -Format yyyy-MM-ddThh:mm:ss
+	Write-Host "Data logs from $startTime"
 }
 $startTime
 $endTime
