@@ -6,7 +6,7 @@ param($Timer)
 #  API Log to OMS Log Analytics Workspace
 ###################################################################################
 #Credit: https://github.com/tsrob50/LogAnalyticsAPIFunction
-function Write-OMSLogfile {
+function Write-OMSLogfile ($dateTime, $type, $logdata, $CustomerID, $SharedKey) {
     <#
     .SYNOPSIS
     Inputs a hashtable, date and workspace type and writes it to a Log Analytics Workspace.
@@ -42,19 +42,7 @@ function Write-OMSLogfile {
     $returnCode = Write-OMSLogfile $dateTime $type $data -Verbose
     write-output $returnCode
     #>
-        [cmdletbinding()]
-        Param(
-            [Parameter(Mandatory = $true, Position = 0)]
-            [datetime]$dateTime,
-            [parameter(Mandatory = $true, Position = 1)]
-            [string]$type,
-            [Parameter(Mandatory = $true, Position = 2)]
-            [psobject]$logdata,
-            [Parameter(Mandatory = $true, Position = 3)]
-            [string]$CustomerID,
-            [Parameter(Mandatory = $true, Position = 4)]
-            [string]$SharedKey
-        )
+     
         Write-Verbose -Message "DateTime: $dateTime"
         Write-Verbose -Message ('DateTimeKind:' + $dateTime.kind)
         Write-Verbose -Message "Type: $type"
@@ -137,18 +125,8 @@ function Write-OMSLogfile {
         return $returnCode
     }
 
-function Get-AuthToken{
-    [cmdletbinding()]
-        Param(
-            [Parameter(Mandatory = $true, Position = 0)]
-            [string]$ClientID,
-            [parameter(Mandatory = $true, Position = 1)]
-            [string]$ClientSecret,
-            [Parameter(Mandatory = $true, Position = 2)]
-            [string]$tenantdomain,
-            [Parameter(Mandatory = $true, Position = 3)]
-            [string]$TenantGUID
-        )
+function Get-AuthToken ($ClientID, $ClientSecret, $tenantdomain, $TenantGUID){
+
     # Create app of type Web app / API in Azure AD, generate a Client Secret, and update the client id and client secret here
     $loginURL = "https://login.microsoftonline.com/"
     # Get the tenant GUID from Properties | Directory ID under the Azure Active Directory section
@@ -160,19 +138,9 @@ function Get-AuthToken{
     return $headerParams 
 }
 
-function Get-O365Data{
+function Get-O365Data ($startTime, $endTime, $headerParams, $tenantGuid) {
     Write-Host "Starting point pulling data from O365 Management APIs"
-    [cmdletbinding()]
-    Param(
-        [Parameter(Mandatory = $true, Position = 0)]
-        [string]$startTime,
-        [parameter(Mandatory = $true, Position = 1)]
-        [string]$endTime,
-        [Parameter(Mandatory = $true, Position = 2)]
-        [psobject]$headerParams,
-        [parameter(Mandatory = $true, Position = 3)]
-        [string]$tenantGuid
-    )
+
     #List Available Content
     $contentTypes = $env:contentTypes.split(",")
     #Loop for each content Type like Audit.General
