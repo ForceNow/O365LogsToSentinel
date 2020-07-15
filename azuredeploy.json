@@ -244,8 +244,8 @@
                         "recordTypes": "[parameters('recordTypes')]",
                         "workspaceID": "[parameters('workspaceID')]",
                         "workspaceKey": "[concat('@Microsoft.KeyVault(SecretUri=https://', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('FunctionName'), 'workspaceKey')).SecretUriWithVersion, ')')]",
-                        "WEBSITE_RUN_FROM_PACKAGE": "https://github.com/ForceNow/O365LogsToSentinel/blob/master/O365APItoAS-Template.zip?raw=true",
-                        "customLogName": "O365Logs"
+                        "WEBSITE_RUN_FROM_PACKAGE": "https://forcenowdeploystorage.blob.core.windows.net/forcenowdeploymentblob/O365APItoAS-Template.zip?sp=rl&st=2020-07-15T05:07:39Z&se=2026-01-01T05:07:00Z&sv=2019-10-10&sr=b&sig=TiVU6opeQPiL6XCVtobYw1B7IaNkQHIxzEyv%2BptcC54%3D",
+                        "customLogName": "O365ATP"
                     }
                 }
             ]

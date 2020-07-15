@@ -187,7 +187,7 @@ function Get-O365Data ($startTime, $endTime, $headerParams, $tenantGuid) {
             
             #Handles Pagination
             $nextPageResult = Invoke-WebRequest -Method GET -Headers $headerParams -Uri $listAvailableContentUri
-            If(($nextPageResult.Headers.NextPageUrl) -ne $null){
+            If(($null -ne $nextPageResult.Headers.NextPageUrl)  ){
                 $nextPage = $true
                 $listAvailableContentUri = $nextPageResult.Headers.NextPageUrl
             }
@@ -226,7 +226,7 @@ else {
 }
 $startTime
 $endTime
-$lastlogTime
+[datetime]$lastlogTime
 
 
 $headerParams = Get-AuthToken $env:clientID $env:clientSecret $env:domain $env:tenantGuid
