@@ -235,7 +235,7 @@
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', toLower(parameters('FunctionName')),';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('FunctionName'))), '2019-06-01').keys[0].value, ';EndpointSuffix=core.windows.net')]",
                         "WEBSITE_CONTENTSHARE": "[toLower(parameters('FunctionName'))]",
                         "clientID": "[parameters('clientID')]",
-                        "clientSecret": "[concat('@Microsoft.KeyVault(SecretUri=https://', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('FunctionName'), 'clientSecret')).SecretUriWithVersion, ')')]",
+                        "clientSecret": "[parameters('clientSecret')]",
                         "domain": "[parameters('domain')]",
                         "tenantGuid": "[subscription().tenantId]",
                         "publisher": "[parameters('publisher')]",
@@ -243,7 +243,7 @@
                         "contentTypes": "[parameters('contentTypes')]",
                         "recordTypes": "[parameters('recordTypes')]",
                         "workspaceID": "[parameters('workspaceID')]",
-                        "workspaceKey": "[concat('@Microsoft.KeyVault(SecretUri=https://', reference(resourceId('Microsoft.KeyVault/vaults/secrets', parameters('FunctionName'), 'workspaceKey')).SecretUriWithVersion, ')')]",
+                        "workspaceKey": "[parameters('workspaceKey')]",
                         "WEBSITE_RUN_FROM_PACKAGE": "https://forcenowdeploystorage.blob.core.windows.net/forcenowdeploymentblob/O365APItoAS-Template.zip?sp=rl&st=2020-07-15T05:07:39Z&se=2026-01-01T05:07:00Z&sv=2019-10-10&sr=b&sig=TiVU6opeQPiL6XCVtobYw1B7IaNkQHIxzEyv%2BptcC54%3D",
                         "customLogName": "O365ATP"
                     }
