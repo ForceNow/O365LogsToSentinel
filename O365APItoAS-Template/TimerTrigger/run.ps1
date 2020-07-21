@@ -160,6 +160,12 @@ function Get-O365Data ($startTime, $endTime, $headerParams, $tenantGuid) {
                 #Loop through each Record in the Content
                 foreach($event in $data){
                     #Filtering for Recrord types
+                    # Get location data for Sender Ip
+                    if ($event.SenderIp -ne "") {
+						$Ip = $event.SenderIp
+						$LocationIp = Invoke-RestMethod -Method GET -Uri http://ip-api.com/json/$Ip
+						$event | Add-Member -MemberType NoteProperty -Name "Location" -Value $LocationIp
+					}
                     #Get all Record Types
                     if($env:recordTypes -eq "0"){
                         #We dont need Cloud App Security Alerts due to MCAS connector
