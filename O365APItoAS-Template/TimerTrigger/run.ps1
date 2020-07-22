@@ -42,88 +42,89 @@ function Write-OMSLogfile ($dateTime, $type, $logdata, $CustomerID, $SharedKey) 
     $returnCode = Write-OMSLogfile $dateTime $type $data -Verbose
     write-output $returnCode
     #>
-     
-        Write-Verbose -Message "DateTime: $dateTime"
-        Write-Verbose -Message ('DateTimeKind:' + $dateTime.kind)
-        Write-Verbose -Message "Type: $type"
-        write-Verbose -Message "LogData: $logdata"
+    
+    
+    Write-Verbose -Message "DateTime: $dateTime"
+    Write-Verbose -Message ('DateTimeKind:' + $dateTime.kind)
+    Write-Verbose -Message "Type: $type"
+    write-Verbose -Message "LogData: $logdata"
 
-        #region Workspace ID and Key
-        # Workspace ID for the workspace
-        #$CustomerID = 'ENTER WORKSPACE ID HERE'
+    #region Workspace ID and Key
+    # Workspace ID for the workspace
+    #$CustomerID = 'ENTER WORKSPACE ID HERE'
 
-        # Shared key needs to be set for environment
-        # Below uses an encrypted variable from Azure Automation
-        # Uncomment the next two lines if using Azure Automation Variable and comment the last
-        # $automationVarName = 'Enter Variable Name Here'
-        # $sharedKey = Get-AutomationVariable -name $automationVarName
-        # Key Vault is another secure option for storing the value
-        # Less secure option is to put the key in the code
-        #$SharedKey = 'ENTER WORKSPACE KEY HERE'
+    # Shared key needs to be set for environment
+    # Below uses an encrypted variable from Azure Automation
+    # Uncomment the next two lines if using Azure Automation Variable and comment the last
+    # $automationVarName = 'Enter Variable Name Here'
+    # $sharedKey = Get-AutomationVariable -name $automationVarName
+    # Key Vault is another secure option for storing the value
+    # Less secure option is to put the key in the code
+    #$SharedKey = 'ENTER WORKSPACE KEY HERE'
 
-        #endregion
+    #endregion
 
-        # Supporting Functions
-        # Function to create the auth signature
-        function Build-signature ($CustomerID, $SharedKey, $Date, $ContentLength, $method, $ContentType, $resource) {
-            $xheaders = 'x-ms-date:' + $Date
-            $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
-            $bytesToHash = [text.Encoding]::UTF8.GetBytes($stringToHash)
-            $keyBytes = [Convert]::FromBase64String($SharedKey)
-            $sha256 = New-Object System.Security.Cryptography.HMACSHA256
-            $sha256.key = $keyBytes
-            $calculateHash = $sha256.ComputeHash($bytesToHash)
-            $encodeHash = [convert]::ToBase64String($calculateHash)
-            $authorization = 'SharedKey {0}:{1}' -f $CustomerID,$encodeHash
-            return $authorization
-        }
-        # Function to create and post the request
-        Function Post-LogAnalyticsData ($CustomerID, $SharedKey, $Body, $Type) {
-            $method = "POST"
-            $ContentType = 'application/json'
-            $resource = '/api/logs'
-            $rfc1123date = ($dateTime).ToString('r')
-            $ContentLength = $Body.Length
-            $signature = Build-signature `
-                -customerId $CustomerID `
-                -sharedKey $SharedKey `
-                -date $rfc1123date `
-                -contentLength $ContentLength `
-                -method $method `
-                -contentType $ContentType `
-                -resource $resource
-            $uri = "https://" + $customerId + ".ods.opinsights.azure.com" + $resource + "?api-version=2016-04-01"
-            $headers = @{
-                "Authorization" = $signature;
-                "Log-Type" = $type;
-                "x-ms-date" = $rfc1123date
-                "time-generated-field" = $dateTime
-            }
-            $response = Invoke-WebRequest -Uri $uri -Method $method -ContentType $ContentType -Headers $headers -Body $body -UseBasicParsing
-            Write-Verbose -message ('Post Function Return Code ' + $response.statuscode)
-            return $response.statuscode
-        }
-
-        # Check if time is UTC, Convert to UTC if not.
-        # $dateTime = (Get-Date)
-        if ($dateTime.kind.tostring() -ne 'Utc'){
-            $dateTime = $dateTime.ToUniversalTime()
-            Write-Verbose -Message $dateTime
-        }
-
-        # Add DateTime to hashtable
-        #$logdata.add("DateTime", $dateTime)
-        $logdata | Add-Member -MemberType NoteProperty -Name "DateTime" -Value $dateTime
-
-        #Build the JSON file
-        $logMessage = ConvertTo-Json $logdata -Depth 20
-        Write-Verbose -Message $logMessage
-
-        #Submit the data
-        $returnCode = Post-LogAnalyticsData -CustomerID $CustomerID -SharedKey $SharedKey -Body ([System.Text.Encoding]::UTF8.GetBytes($logMessage)) -Type $type
-        Write-Verbose -Message "Post Statement Return Code $returnCode"
-        return $returnCode
+    # Supporting Functions
+    # Function to create the auth signature
+    function Build-signature ($CustomerID, $SharedKey, $Date, $ContentLength, $method, $ContentType, $resource) {
+        $xheaders = 'x-ms-date:' + $Date
+        $stringToHash = $method + "`n" + $contentLength + "`n" + $contentType + "`n" + $xHeaders + "`n" + $resource
+        $bytesToHash = [text.Encoding]::UTF8.GetBytes($stringToHash)
+        $keyBytes = [Convert]::FromBase64String($SharedKey)
+        $sha256 = New-Object System.Security.Cryptography.HMACSHA256
+        $sha256.key = $keyBytes
+        $calculateHash = $sha256.ComputeHash($bytesToHash)
+        $encodeHash = [convert]::ToBase64String($calculateHash)
+        $authorization = 'SharedKey {0}:{1}' -f $CustomerID,$encodeHash
+        return $authorization
     }
+    # Function to create and post the request
+    Function Post-LogAnalyticsData ($CustomerID, $SharedKey, $Body, $Type) {
+        $method = "POST"
+        $ContentType = 'application/json'
+        $resource = '/api/logs'
+        $rfc1123date = ($dateTime).ToString('r')
+        $ContentLength = $Body.Length
+        $signature = Build-signature `
+            -customerId $CustomerID `
+            -sharedKey $SharedKey `
+            -date $rfc1123date `
+            -contentLength $ContentLength `
+            -method $method `
+            -contentType $ContentType `
+            -resource $resource
+        $uri = "https://" + $customerId + ".ods.opinsights.azure.com" + $resource + "?api-version=2016-04-01"
+        $headers = @{
+            "Authorization" = $signature;
+            "Log-Type" = $type;
+            "x-ms-date" = $rfc1123date
+            "time-generated-field" = $dateTime
+        }
+        $response = Invoke-WebRequest -Uri $uri -Method $method -ContentType $ContentType -Headers $headers -Body $body -UseBasicParsing
+        Write-Verbose -message ('Post Function Return Code ' + $response.statuscode)
+        return $response.statuscode
+    }
+
+    # Check if time is UTC, Convert to UTC if not.
+    # $dateTime = (Get-Date)
+    if ($dateTime.kind.tostring() -ne 'Utc'){
+        $dateTime = $dateTime.ToUniversalTime()
+        Write-Verbose -Message $dateTime
+    }
+
+    # Add DateTime to hashtable
+    #$logdata.add("DateTime", $dateTime)
+    $logdata | Add-Member -MemberType NoteProperty -Name "DateTime" -Value $dateTime
+
+    #Build the JSON file
+    $logMessage = ConvertTo-Json $logdata -Depth 20
+    Write-Verbose -Message $logMessage
+
+    #Submit the data
+    $returnCode = Post-LogAnalyticsData -CustomerID $CustomerID -SharedKey $SharedKey -Body ([System.Text.Encoding]::UTF8.GetBytes($logMessage)) -Type $type
+    Write-Verbose -Message "Post Statement Return Code $returnCode"
+    return $returnCode
+}
 
 function Get-AuthToken ($ClientID, $ClientSecret, $tenantdomain, $TenantGUID){
 
@@ -161,10 +162,11 @@ function Get-O365Data ($startTime, $endTime, $headerParams, $tenantGuid) {
                 foreach($event in $data){
                     #Filtering for Recrord types
                     # Get location data for Sender Ip
-                    if ($event.SenderIp -ne "") {
+                    if ($null -ne $event.SenderIp) {
 						$Ip = $event.SenderIp
-						$LocationIp = Invoke-RestMethod -Method GET -Uri http://ip-api.com/json/$Ip
-						$event | Add-Member -MemberType NoteProperty -Name "Location" -Value $LocationIp
+                        $LocationIp = Invoke-RestMethod -Method GET -Uri http://ip-api.com/json/$Ip
+                        Start-Sleep -Seconds 1
+                        $event | Add-Member -MemberType NoteProperty -Name "Location" -Value $LocationIp 
 					}
                     #Get all Record Types
                     if($env:recordTypes -eq "0"){
@@ -227,7 +229,7 @@ else {
     $azStorageContainer = New-AzStorageContainer -Name "lastlog" -Context $Context
     $endTime | Out-File "$env:TEMP\lastlog.log"
     Set-AzStorageBlobContent -file "$env:TEMP\lastlog.log" -Container $azStorageContainer.name -Context $Context -Force
-    $startTime = $currentUTCtime.AddSeconds(-86400) | Get-Date -Format yyyy-MM-ddThh:mm:ss
+    $startTime = $currentUTCtime.AddSeconds(-120) | Get-Date -Format yyyy-MM-ddThh:mm:ss
 	Write-Host "Data logs from $startTime"
 }
 $startTime
